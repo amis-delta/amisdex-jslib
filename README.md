@@ -1,2 +1,2 @@
-# ubitok-jslib
-UbiTok.io Javascript Libraries
+# amisexchange-jslib
+amis exchange Javascript Libraries
