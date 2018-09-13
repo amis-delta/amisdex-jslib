@@ -188,10 +188,10 @@ exports.bookInfo = {
   },
   "AMIS-ETH": {
     networkId: "1",
-    bookAddress: "0xf8d15960aa6Aaf5972DC54cF002951553906C7bd",
+    bookAddress: "0x2cc69cAaaAa6114ddf48F4DdB2AdB9c5d5d3e048",
     bookAbiArray: OnChainOrderBookV012bAbiArray,
     symbol: "AMIS-ETH",
-    bookStartBlock: 4402394,
+    bookStartBlock: 6268330,
     priceRangeAdjustment: 0,
     base: {
       tradableType: "ERC20",
