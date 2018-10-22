@@ -164,9 +164,9 @@ exports.bookInfo = {
     base: {
       tradableType: "ERC20",
       symbol: "AMIS",
-      decimals: 18,
+      decimals: 9,
       name: "AMIS (Ropsten TEST)",
-      address: "  0x4875ae0e3fdfb9779d92b4c7bc5ce852434442b3",
+      address: "  0x949bed886c739f1a3273629b3320db0c5024c719",
       abiArray: niceERC20TokenAbiArray,
       minInitialSize: "0.001"
     },
