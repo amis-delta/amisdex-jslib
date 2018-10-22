@@ -1,4 +1,4 @@
-// Conversion functions for talking to the OnChainOrderBookV012 contract.
+// Conversion functions for talking to the OnChainOrderBookV012 contract [ERC20V1].
 //
 // TODO - Currently limiting ourselves to ES5 here - perhaps should transpile?
 // TODO - Having to pass baseDecimals and priceRangeAdjustment about is ugly,
