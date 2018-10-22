@@ -2,8 +2,8 @@
   "name": "amisdex-jslib",
   "version": "0.8.42",
   "description": "Javascript libraries for working with the AmisDex exchange",
-  "author": "Bonnag Limited",
-  "license": "",
+  "author": "AmisDex",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "test": "mocha --reporter spec",
