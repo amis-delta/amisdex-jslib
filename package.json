@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "mocha --reporter spec",
+    "start": "mocha --reporter spec",
     "instrument": "nyc instrument reference-exchange.js instrumented/ && shx mv instrumented/reference-exchange.js reference-exchange-instrumented.js"
   },
   "dependencies": {

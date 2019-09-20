@@ -135,7 +135,7 @@ exports.decodeClientOrderEventType = function (encodedClientOrderEventType) {
 // Phew - we've made this far too complicated!
 var unadjustedEffectiveMinimumPriceExponent = -5;
 
-exports.cntrDecimals = 18;
+exports.quoteDecimals = 18;
 exports.rwrdDecimals = 18;
 
 exports.invalidPricePacked = 0;
@@ -363,12 +363,12 @@ exports.encodeBaseAmount = function(friendlyAmount, baseDecimals) {
   return exports.encodeAmount(friendlyAmount, baseDecimals);
 };
 
-exports.decodeCntrAmount = function(amountWei) {
-  return exports.decodeAmount(amountWei, exports.cntrDecimals);
+exports.decodeQuoteAmount = function(amountWei) {
+  return exports.decodeAmount(amountWei, exports.quoteDecimals);
 };
 
-exports.encodeCntrAmount = function(friendlyAmount) {
-  return exports.encodeAmount(friendlyAmount, exports.cntrDecimals);
+exports.encodeQuoteAmount = function(friendlyAmount) {
+  return exports.encodeAmount(friendlyAmount, exports.quoteDecimals);
 };
 
 exports.decodeRwrdAmount = function(amountWei) {
@@ -473,7 +473,7 @@ exports.extractClientDateFromDecodedOrderId = function(friendlyOrderId) {
 exports.decodeClientBalances = function (result, baseDecimals) {
   return {
     exchangeBase: exports.decodeBaseAmount(result[0], baseDecimals),
-    exchangeCntr: exports.decodeCntrAmount(result[1]),
+    exchangeQuote: exports.decodeQuoteAmount(result[1]),
     exchangeRwrd: exports.decodeRwrdAmount(result[2]),
     approvedBase: exports.decodeBaseAmount(result[3], baseDecimals),
     approvedRwrd: exports.decodeRwrdAmount(result[4]),
@@ -492,8 +492,8 @@ exports.decodeWalkClientOrder = function (order, baseDecimals, priceRangeAdjustm
     status: exports.decodeStatus(order[4]),
     reasonCode: exports.decodeReasonCode(order[5]),
     rawExecutedBase: order[6],
-    rawExecutedCntr: order[7],
-    rawFeesBaseOrCntr: order[8],
+    rawExecutedQuote: order[7],
+    rawFeesBaseOrQuote: order[8],
     rawFeesRwrd: order[9]
   };
 };
@@ -509,8 +509,8 @@ exports.decodeOrder = function (orderId, order, baseDecimals, priceRangeAdjustme
     status: exports.decodeStatus(order[4]),
     reasonCode: exports.decodeReasonCode(order[5]),
     rawExecutedBase: order[6],
-    rawExecutedCntr: order[7],
-    rawFeesBaseOrCntr: order[8],
+    rawExecutedQuote: order[7],
+    rawFeesBaseOrQuote: order[8],
     rawFeesRwrd: order[9]
   };
 };
@@ -522,8 +522,8 @@ exports.decodeOrderState = function (orderId, state) {
     status: exports.decodeStatus(state[0]),
     reasonCode: exports.decodeReasonCode(state[1]),
     rawExecutedBase: state[2],
-    rawExecutedCntr: state[3],
-    rawFeesBaseOrCntr: state[4],
+    rawExecutedQuote: state[3],
+    rawFeesBaseOrQuote: state[4],
     rawFeesRwrd: state[5]
   };
 };
