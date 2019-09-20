@@ -29,14 +29,14 @@ function ReferenceExchange(baseMinInitialSize, minPriceExponent) {
   this.bigZero = new BigNumber(0);
 
   this.balanceBaseForClient = {};
-  this.balanceCntrForClient = {};
+  this.balanceQuoteForClient = {};
   this.balanceRwrdForClient = {};
 
   // not really part of the exchange but doesn't seem worth having separate reference tokens
   this.approvedBaseForClient = {};
   this.approvedRwrdForClient = {};
   this.ownBaseForClient = {};
-  this.ownCntrForClient = {};
+  this.ownQuoteForClient = {};
   this.ownRwrdForClient = {};
 
   this.orderForOrderId = {};
@@ -44,8 +44,8 @@ function ReferenceExchange(baseMinInitialSize, minPriceExponent) {
   this.baseMinRemainingSize = new BigNumber('10000000000000000');
   this.baseMinInitialSize = new BigNumber(baseMinInitialSize);
   this.baseMaxSize = new BigNumber('1e32');
-  this.cntrMinInitialSize = new BigNumber('10000000000000000');
-  this.cntrMaxSize = new BigNumber('1e32');
+  this.quoteMinInitialSize = new BigNumber('10000000000000000');
+  this.quoteMaxSize = new BigNumber('1e32');
   this.feesPer10K = 5;
   this.ethRwrdRate = 1000;
   this.events = [];
@@ -73,7 +73,7 @@ ReferenceExchange.prototype._getOrDflt = function(obj, key, dflt) {
 ReferenceExchange.prototype.getClientBalances = function(client) {
   return [
     this._getOrDflt(this.balanceBaseForClient, client, this.bigZero),
-    this._getOrDflt(this.balanceCntrForClient, client, this.bigZero),
+    this._getOrDflt(this.balanceQuoteForClient, client, this.bigZero),
     this._getOrDflt(this.balanceRwrdForClient, client, this.bigZero),
     this._getOrDflt(this.approvedBaseForClient, client, this.bigZero),
     this._getOrDflt(this.approvedRwrdForClient, client, this.bigZero),
@@ -83,8 +83,8 @@ ReferenceExchange.prototype.getClientBalances = function(client) {
 };
 
 // annoying special case due to geth/metamask bug
-ReferenceExchange.prototype.getOwnCntrBalance = function(client) {
-  return this._getOrDflt(this.ownCntrForClient, client, this.bigZero);
+ReferenceExchange.prototype.getOwnQuoteBalance = function(client) {
+  return this._getOrDflt(this.ownQuoteForClient, client, this.bigZero);
 };
 
 // demo/test only
@@ -93,16 +93,16 @@ ReferenceExchange.prototype.depositBaseForTesting = function(client, amountBase)
 };
 
 // demo/test only
-ReferenceExchange.prototype.depositCntrForTesting = function(client, amountCntr)  {
-  this._creditFundsCntr(client, amountCntr);
+ReferenceExchange.prototype.depositQuoteForTesting = function(client, amountQuote)  {
+  this._creditFundsQuote(client, amountQuote);
 };
 
-ReferenceExchange.prototype.setBalancesForTesting = function(client, balanceBase, balanceCntr, balanceRwrd, ownBase, ownCntr, ownRwrd)  {
+ReferenceExchange.prototype.setBalancesForTesting = function(client, balanceBase, balanceQuote, balanceRwrd, ownBase, ownQuote, ownRwrd)  {
   this.balanceBaseForClient[client] = balanceBase;
-  this.balanceCntrForClient[client] = balanceCntr;
+  this.balanceQuoteForClient[client] = balanceQuote;
   this.balanceRwrdForClient[client] = balanceRwrd;
   this.ownBaseForClient[client] = ownBase;
-  this.ownCntrForClient[client] = ownCntr;
+  this.ownQuoteForClient[client] = ownQuote;
   this.ownRwrdForClient[client] = ownRwrd;
 };
 
@@ -142,23 +142,23 @@ ReferenceExchange.prototype.transferBase = function(client, amountBase)  {
 };
 
 // real one doesn't need an amountCntr param 'cos part of msg
-ReferenceExchange.prototype.depositCntr = function(client, amountCntr)  {
-  var ownBalanceCntr = this.ownCntrForClient[client];
-  if (!ownBalanceCntr || ownBalanceCntr.lt(amountCntr)) {
-    throw new Error("insufficient cntr funds in own address");
+ReferenceExchange.prototype.depositQuote = function(client, amountQuote)  {
+  var ownBalanceQuote = this.ownQuoteForClient[client];
+  if (!ownBalanceQuote || ownBalanceQuote.lt(amountQuote)) {
+    throw new Error("insufficient quote funds in own address");
   }
-  this._creditFunds(this.ownCntrForClient, client, amountCntr.negated());
-  this._creditFundsCntr(client, amountCntr);
+  this._creditFunds(this.ownQuoteForClient, client, amountQuote.negated());
+  this._creditFundsQuote(client, amountQuote);
   // TODO - raise event
 };
 
-ReferenceExchange.prototype.withdrawCntr = function(client, amountCntr)  {
-  var balanceCntr = this.balanceCntrForClient[client];
-  if (!balanceCntr || balanceCntr.lt(amountCntr)) {
-    throw new Error("insufficient cntr funds in book");
+ReferenceExchange.prototype.withdrawQuote = function(client, amountQuote)  {
+  var balanceQuote = this.balanceQuoteForClient[client];
+  if (!balanceQuote || balanceQuote.lt(amountQuote)) {
+    throw new Error("insufficient quote funds in book");
   }
-  this._creditFunds(this.ownCntrForClient, client, amountCntr);
-  this._creditFundsCntr(client, amountCntr.negated());
+  this._creditFunds(this.ownQuoteForClient, client, amountQuote);
+  this._creditFundsQuote(client, amountQuote.negated());
   // TODO - raise event
 };
 
@@ -211,8 +211,8 @@ ReferenceExchange.prototype._creditFundsBase = function(client, amountBase)  {
   this._creditFunds(this.balanceBaseForClient, client, amountBase);
 };
 
-ReferenceExchange.prototype._creditFundsCntr = function(client, amountCntr)  {
-  this._creditFunds(this.balanceCntrForClient, client, amountCntr);
+ReferenceExchange.prototype._creditFundsQuote = function(client, amountQuote)  {
+  this._creditFunds(this.balanceQuoteForClient, client, amountQuote);
 };
 
 ReferenceExchange.prototype._creditFundsRwrd = function(client, amountRwrd)  {
@@ -300,13 +300,13 @@ ReferenceExchange.prototype.createOrder = function(client, orderId, price, sizeB
     client: client,
     price: this._normalisePrice(price),
     sizeBase: sizeBase,
-    sizeCntr: this.bigZero,
+    sizeQuote: this.bigZero,
     terms: terms,
     status : 'Unknown',
     reasonCode: 'None',
     executedBase : this.bigZero,
-    executedCntr : this.bigZero,
-    feesBaseOrCntr: this.bigZero,
+    executedQuote : this.bigZero,
+    feesBaseOrQuote: this.bigZero,
     feesRwrd: this.bigZero
   };
   this.orderForOrderId[orderId] = order;
@@ -320,13 +320,13 @@ ReferenceExchange.prototype.createOrder = function(client, orderId, price, sizeB
     order.reasonCode = 'InvalidSize';
     return;
   }
-  var sizeCntr = this.computeAmountCntr(sizeBase, price);
-  if (sizeCntr.lt(this.cntrMinInitialSize) || sizeCntr.gte(this.cntrMaxSize)) {
+  var sizeQuote = this.computeAmountQuote(sizeBase, price);
+  if (sizeQuote.lt(this.quoteMinInitialSize) || sizeQuote.gte(this.quoteMaxSize)) {
     order.status = 'Rejected';
     order.reasonCode = 'InvalidSize';
     return;
   }
-  order.sizeCntr = sizeCntr;
+  order.sizeQuote = sizeQuote;
   if (!this._debitFundsForOrder(order)) {
     order.status = 'Rejected';
     order.reasonCode = 'InsufficientFunds';
@@ -533,7 +533,7 @@ ReferenceExchange.prototype.oppositePrice = function(price)  {
   return this._makePrice(oppositeDirection, splitPrice[1], splitPrice[2]);
 };
 
-ReferenceExchange.prototype.computeAmountCntr = function(amountBase, price)  {
+ReferenceExchange.prototype.computeAmountQuote = function(amountBase, price)  {
   var splitPrice = this._splitPrice(price);
   if (splitPrice[0] === 'Invalid') {
     throw("not a valid sided price: " + price);
@@ -547,11 +547,11 @@ ReferenceExchange.prototype.computeAmountCntr = function(amountBase, price)  {
 
 ReferenceExchange.prototype._debitFundsForOrder = function(order)  {
   if (this._isBuyPrice(order.price)) {
-    var availableCntr = this.getClientBalances(order.client)[1];
-    if (availableCntr.lt(order.sizeCntr)) {
+    var availableQuote = this.getClientBalances(order.client)[1];
+    if (availableQuote.lt(order.sizeQuote)) {
       return false;
     }
-    this.balanceCntrForClient[order.client] = availableCntr.minus(order.sizeCntr);
+    this.balanceQuoteForClient[order.client] = availableQuote.minus(order.sizeQuote);
     return true;
   } else {
     var availableBase = this.getClientBalances(order.client)[0];
@@ -565,7 +565,7 @@ ReferenceExchange.prototype._debitFundsForOrder = function(order)  {
 
 ReferenceExchange.prototype._processOrder = function(order, maxMatches)  {
   var ourOriginalExecutedBase = order.executedBase;
-  var ourOriginalExecutedCntr = order.executedCntr;
+  var ourOriginalExecutedQuote = order.executedQuote;
   var theirPriceStart;
   if (this._isBuyPrice(order.price)) {
     theirPriceStart = "Sell @ 0.00000100";
@@ -576,25 +576,25 @@ ReferenceExchange.prototype._processOrder = function(order, maxMatches)  {
   var matchStopReason = this._matchAgainstBook(order, theirPriceStart, theirPriceEnd, maxMatches);
   if (order.executedBase.gt(ourOriginalExecutedBase)) {
     var liquidityTakenBase = order.executedBase.minus(ourOriginalExecutedBase);
-    var liquidityTakenCntr = order.executedCntr.minus(ourOriginalExecutedCntr);
+    var liquidityTakenQuote = order.executedQuote.minus(ourOriginalExecutedQuote);
     // Clients can use their reward tokens to pay fees.
-    var feesRwrd = liquidityTakenCntr.times(this.feesPer10K).dividedToIntegerBy(10000).times(this.ethRwrdRate);
+    var feesRwrd = liquidityTakenQuote.times(this.feesPer10K).dividedToIntegerBy(10000).times(this.ethRwrdRate);
     if (feesRwrd.lte(this.getClientBalances(order.client)[2])) {
       this._creditFundsRwrd(order.client, feesRwrd.negated());
       if (this._isBuyPrice(order.price)) {
         this._creditFundsBase(order.client, liquidityTakenBase);
       } else {
-        this._creditFundsCntr(order.client, liquidityTakenCntr);
+        this._creditFundsQuote(order.client, liquidityTakenQuote);
       }
       order.feesRwrd = order.feesRwrd.add(feesRwrd);
     } else if (this._isBuyPrice(order.price)) {
       var feesBase = liquidityTakenBase.times(this.feesPer10K).dividedToIntegerBy(10000);
       this._creditFundsBase(order.client, liquidityTakenBase.minus(feesBase));
-      order.feesBaseOrCntr = order.feesBaseOrCntr.add(feesBase);
+      order.feesBaseOrQuote = order.feesBaseOrQuote.add(feesBase);
     } else {
-      var feesCntr = liquidityTakenCntr.times(this.feesPer10K).dividedToIntegerBy(10000);
-      this._creditFundsCntr(order.client, liquidityTakenCntr.minus(feesCntr));
-      order.feesBaseOrCntr = order.feesBaseOrCntr.add(feesCntr);
+      var feesQuote = liquidityTakenQuote.times(this.feesPer10K).dividedToIntegerBy(10000);
+      this._creditFundsQuote(order.client, liquidityTakenQuote.minus(feesQuote));
+      order.feesBaseOrQuote = order.feesBaseOrQuote.add(feesQuote);
     }
   }
   if (order.terms === 'ImmediateOrCancel') {
@@ -653,7 +653,7 @@ ReferenceExchange.prototype._processOrder = function(order, maxMatches)  {
 
 ReferenceExchange.prototype._refundUnmatchedAndFinish = function(order, status, reasonCode) {
   if (this._isBuyPrice(order.price)) {
-    this._creditFundsCntr(order.client, order.sizeCntr.minus(order.executedCntr));
+    this._creditFundsQuote(order.client, order.sizeQuote.minus(order.executedQuote));
   } else {
     this._creditFundsBase(order.client, order.sizeBase.minus(order.executedBase));
   }
@@ -764,17 +764,17 @@ ReferenceExchange.prototype._matchWithTheirs = function(ourOrder, theirOrder)  {
   } else {
     matchBase = theirRemainingBase;
   }
-  var matchCntr = this.computeAmountCntr(matchBase, theirOrder.price);
+  var matchQuote = this.computeAmountQuote(matchBase, theirOrder.price);
   ourOrder.executedBase = ourOrder.executedBase.add(matchBase);
-  ourOrder.executedCntr = ourOrder.executedCntr.add(matchCntr);
+  ourOrder.executedQuote = ourOrder.executedQuote.add(matchQuote);
   theirOrder.executedBase = theirOrder.executedBase.add(matchBase);
-  theirOrder.executedCntr = theirOrder.executedCntr.add(matchCntr);
+  theirOrder.executedQuote = theirOrder.executedQuote.add(matchQuote);
   if (this._isBuyPrice(theirOrder.price)) {
      // they have bought base (using the Cntr they already paid when creating the order)
      this._creditFundsBase(theirOrder.client, matchBase);
   } else {
     // they have bought Cntr (using the base they already paid when creating the order)
-     this._creditFundsCntr(theirOrder.client, matchCntr);
+     this._creditFundsQuote(theirOrder.client, matchQuote);
   }
   var theirStillRemainingBase = theirOrder.sizeBase.minus(theirOrder.executedBase);
   if (theirStillRemainingBase.lt(this.baseMinRemainingSize)) {

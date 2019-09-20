@@ -1,13 +1,13 @@
-// Tests for the UbiTokTypes module which deals mostly with decoding/encoding exchange contract input/output.
+// Tests for the AmisDexTypes module which deals mostly with decoding/encoding exchange contract input/output.
 //
 
 var expect = require("chai").expect;
-var UbiTokTypes = require("../ubi-tok-types");
+var AmisDexTypes = require("../amisdex-types");
 
-describe("UbiTokTypes", function() {
+describe("AmisDexTypes", function() {
   describe("Order Ids", function() {
     it("encodes creation date into order id and extracts it again", function() {
-      let uut = UbiTokTypes;
+      let uut = AmisDexTypes;
       // not guaranteed to preserve sub-second precision mind you
       let exampleDate = new Date(2018, 0, 15, 10, 15, 23);
       let notVeryRandomHex = '01020304';
@@ -19,7 +19,7 @@ describe("UbiTokTypes", function() {
   });
   describe("Price Packing", function() {
     it("decodes known prices", function() {
-      let uut = UbiTokTypes;
+      let uut = AmisDexTypes;
       expect(uut.decodePrice(1, 0)).to.equal("Buy @ 999000");
       expect(uut.decodePrice(5376, 0)).to.equal("Buy @ 1.24");
       expect(uut.decodePrice(5400, 0)).to.equal("Buy @ 1.00");
@@ -31,7 +31,7 @@ describe("UbiTokTypes", function() {
   });
   describe("Price Parsing", function() {
     it("parses prices", function() {
-      let uut = UbiTokTypes;
+      let uut = AmisDexTypes;
       let testGood = function (pricePart, priceRangeAdjustment, expectedMantissa, expectedExponent) {
         for (let direction of ['Buy', 'Sell']) {
           let result = uut.parseFriendlyPricePart(direction, pricePart, priceRangeAdjustment);
