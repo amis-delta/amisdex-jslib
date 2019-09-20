@@ -1,12 +1,12 @@
 {
-  "name": "ubitok-jslib",
-  "version": "0.8.41",
-  "description": "Javascript libraries for working with the UbiTok exchange",
-  "author": "Bonnag Limited",
-  "license": "Proprietary",
+  "name": "amisdex-jslib",
+  "version": "0.8.42",
+  "description": "Javascript libraries for working with the AmisDex exchange",
+  "author": "AmisDex",
+  "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "mocha --reporter spec",
+    "start": "mocha --reporter spec",
     "instrument": "nyc instrument reference-exchange.js instrumented/ && shx mv instrumented/reference-exchange.js reference-exchange-instrumented.js"
   },
   "dependencies": {

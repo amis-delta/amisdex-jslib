@@ -1,2 +1,2 @@
-# amis-exchange-jslib
-amis exchange Javascript Libraries
+# amisdex-jslib
+amisdex Javascript Libraries
